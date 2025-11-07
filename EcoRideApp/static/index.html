@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>EcoRideApp — Demo</title>
+</head>
+<body>
+  <h2>Available Rides</h2>
+  <div id="rides"></div>
+
+  <h3>Book a Ride</h3>
+  <form id="bookForm">
+    Ride ID: <input id="rideId" /><br/>
+    Passenger ID: <input id="passId" /><br/>
+    Seats: <input id="seats" value="1" /><br/>
+    <button type="submit">Book</button>
+  </form>
+
+  <script>
+    async function loadRides(){
+      const res = await fetch('http://127.0.0.1:5000/rides');
+      const data = await res.json();
+      const container = document.getElementById('rides');
+      container.innerHTML = '';
+      data.forEach(r=>{
+        container.innerHTML += `<div>
+          <b>ID:</b>${r.Ride_ID} <b>${r.Start_Location}→${r.Destination}</b> Fare:${r.Fare} Seats:${r.Available_Seats}
+        </div>`;
+      });
+    }
+    document.getElementById('bookForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const rideId = document.getElementById('rideId').value;
+      const passId = document.getElementById('passId').value;
+      const seats = document.getElementById('seats').value;
+      const res = await fetch('http://127.0.0.1:5000/book-ride', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ride_id: parseInt(rideId), passenger_id: parseInt(passId), seats: parseInt(seats) })
+      });
+      const j = await res.json();
+      alert(JSON.stringify(j));
+      loadRides();
+    });
+
+    loadRides();
+  </script>
+</body>
+</html>
